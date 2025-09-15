@@ -40,6 +40,7 @@ module Searchkick
       @routing = nil
       @misspellings = false
       @misspellings_below = nil
+      @misspellings_retry = false
       @highlighted_fields = nil
       @index_mapping = nil
 
@@ -95,6 +96,7 @@ module Searchkick
         begin
           response = execute_search
           if retry_misspellings?(response)
+            @misspellings_retry = true
             prepare
             response = execute_search
           end
@@ -313,12 +315,12 @@ module Searchkick
             end
 
           if misspellings.is_a?(Hash) && misspellings[:below]
-            if !@misspellings_below
+            if !@misspellings_retry
               @misspellings_below = misspellings[:below].to_i
               misspellings = false
             else
               # On retry, enable misspellings with the original options (minus :below)
-              misspellings = misspellings.except(:below)
+              misspellings = misspellings.dup.except(:below)
               misspellings = true if misspellings.empty?
             end
           end
