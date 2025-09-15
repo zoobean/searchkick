@@ -20,6 +20,7 @@ module Searchkick
       retry_queries = []
       search_queries.each_with_index do |query, i|
         if perform_retry && query.retry_misspellings?(responses[i])
+          query.instance_variable_set(:@misspellings_retry, true)
           query.send(:prepare) # okay, since we don't want to expose this method outside Searchkick
           retry_queries << query
         else
