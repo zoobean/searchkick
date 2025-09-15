@@ -312,9 +312,15 @@ module Searchkick
               true
             end
 
-          if misspellings.is_a?(Hash) && misspellings[:below] && !@misspellings_below
-            @misspellings_below = misspellings[:below].to_i
-            misspellings = false
+          if misspellings.is_a?(Hash) && misspellings[:below]
+            if !@misspellings_below
+              @misspellings_below = misspellings[:below].to_i
+              misspellings = false
+            else
+              # On retry, enable misspellings with the original options (minus :below)
+              misspellings = misspellings.except(:below)
+              misspellings = true if misspellings.empty?
+            end
           end
 
           if misspellings != false
